@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "name" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ template "name" . }}
+      app.kubernetes.io/instance: {{ template "name" . }}
+      app.kubernetes.io/name: {{ template "name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ template "name" . }}
+        app.kubernetes.io/instance: {{ template "name" . }}
+        app.kubernetes.io/name: {{ template "name" . }}
+    spec:
+      {{ if .Values.deployments.initContainers }}
+      initContainers: {{ toYaml .Values.deployments.initContainers | default list | nindent 8 }}
+      {{ end }}
+      containers:
+        {{ range .Values.deployments.containers }}
+          - name:  {{ .name }}
+            image: "{{ .repository }}:{{ .tag }}"
+            {{ if .command }}
+            command: {{ .command }}
+            {{ end }}
+            {{ if .args }}
+            args: {{ .args }}
+            {{ end }}
+            {{ if .port }}
+            ports:
+              - containerPort: {{ .port }}
+            {{ end }}
+            {{ if .ports }}
+            ports: {{ .ports | default list | toYaml | nindent 14 }}
+            {{ end }}
+            {{ if not (eq .healthcheck false)}}
+            livenessProbe:
+              httpGet:
+                path: /
+                port: {{ .port }}
+                scheme: HTTP
+            {{ end }}
+            securityContext: {{ toYaml .securityContext | default list | nindent 14 }}
+            args: {{ .args | default list | toYaml | nindent 14 }}
+            env: {{ .env | default list | toYaml | nindent 14 }}
+            envFrom: {{ .envFrom | default list | toYaml | nindent 14 }}
+            resources: {{ toYaml .resources | default list | nindent 14 }}
+            volumeMounts: {{ toYaml .volumeMounts | default list | nindent 14 }}
+        {{ end }}
+      imagePullSecrets: {{ toYaml .Values.imagePullSecrets | default list | nindent 8 }}
+      volumes: {{ toYaml .Values.deployments.volumes | default list | nindent 8 }}

@@ -1,0 +1,19 @@
+version: '1'
+services:
+  postgres:
+    image: postgis/postgis:15-3.3-alpine
+    container_name: hd-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+    ports:
+      - "5440:5432"
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

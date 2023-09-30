@@ -1,0 +1,13 @@
+---
+# adminPassword: $ADMIN_PASSWORD
+externalURL: https://registry.karnwong.me
+service:
+  type: NodePort
+  ports:
+    http: 90
+    https: 91
+    notary: 92
+  nodePorts:
+    http: 30500
+    https: 30501
+    notary: 30502
