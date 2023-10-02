@@ -9,7 +9,7 @@ ci instructions:
 
 ```bash
 kubectl create namespace forgejo
-helm upgrade --install forgejo ../default/base --values forgejo.yaml --namespace forgejo
+helm upgrade --install forgejo ../base --values forgejo.yaml --namespace forgejo
 ```
 
 ## Runner
